@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+<script type="text/javascript" src="OpenLayers.js"></script>
+<script type="text/javascript" src="../TimeSlider.js"></script>
+
+<script>
+    var map = new OpenLayers.Map('map');
+
+    function onLoadWMCSuccess(request) {
+        var wmcFormat = new OpenLayers.Format.WMC({
+            'layerOptions' : {
+                buffer : 0
+            }
+        });
+        var wmcDoc = wmcFormat.read(request.responseText);
+
+        for ( var i = 0; i < wmcDoc.layersContext.length; i++) {
+            var layer = wmcFormat.getLayerFromContext(wmcDoc.layersContext[i]);
+
+            map.addLayer(layer);
+
+            // OpenLayers set the visibility of at least on layer to true. To simplify test we just set it to false.
+            if (layer.getVisibility()) {
+                layer.setVisibility(false);
+            }
+
+        }
+
+        runTests();
+    };
+
+    function runTests() {
+
+        test("No layers are visible before they are selected", function() {
+
+            var timeSlider = new OpenLayers.Control.TimeSlider();
+            timeSlider.setMap(map);
+            deepEqual(timeSlider.visibleLayers, [], "All layers hidden none selected");
+        });
+
+        test("TimeSlider registers add/remove visibility.", 3, function() {
+
+            var timeSlider = new OpenLayers.Control.TimeSlider();
+            timeSlider.setMap(map);
+            var layers = map.layers;
+
+            var layer1 = layers[0];
+            layer1.setVisibility(true);
+            deepEqual(timeSlider.visibleLayers, [ layer1 ], "First visible layer selected");
+
+            var layer2 = layers[1];
+            layer2.setVisibility(true);
+            deepEqual(timeSlider.visibleLayers, [ layer1, layer2 ], "Second visible layer selected");
+
+            layer1.setVisibility(false);
+            deepEqual(timeSlider.visibleLayers, [ layer2 ], "Layer not visible registered");
+        });
+
+        test("timeSlider mergeTime", function() {
+
+            var timeSlider = new OpenLayers.Control.TimeSlider();
+
+            deepEqual(timeSlider.mergeTime([], []), [], "Merging empty lists");
+
+            deepEqual(timeSlider.mergeTime([], [ "2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z" ]), [
+                    "2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z" ], "First list empty");
+
+            deepEqual(timeSlider.mergeTime([ "2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z" ], []), [
+                    "2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z" ], "Second list empty");
+
+            deepEqual(timeSlider.mergeTime([ "2009-11-06T12:00:00.000Z", ], [ "2009-11-07T12:00:00.000Z" ]), [
+                    "2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z" ], "No common elements");
+
+            deepEqual(timeSlider.mergeTime([ "2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z" ], [
+                    "2009-11-07T12:00:00.000Z", "2009-11-08T12:00:00.000Z" ]), [ "2009-11-06T12:00:00.000Z",
+                    "2009-11-07T12:00:00.000Z", "2009-11-08T12:00:00.000Z" ], "Common elements");
+        });
+
+    }
+
+    $(document).ready(function() {
+
+        var wmcUrl = 'timeslider-wmc.xml';
+        OpenLayers.loadURL(wmcUrl, null, this, onLoadWMCSuccess, function(request) {
+            alert('Failed loading wmc');
+        });
+
+    });
+</script>
+
+</head>
+<body>
+	<h1 id="qunit-header">TimeSlider tests</h1>
+	<h2 id="qunit-banner"></h2>
+	<div id="qunit-testrunner-toolbar"></div>
+	<h2 id="qunit-userAgent"></h2>
+	<ol id="qunit-tests"></ol>
+	<div id="qunit-fixture">test markup, will be hidden</div>
+
+	<div id="map"></div>
+</body>
+</html>
