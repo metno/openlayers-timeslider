@@ -4,7 +4,7 @@
  */
 OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
 
-    availableTimes : [],
+    availableTimes : {},
 
     visibleLayers : [],
 
@@ -39,11 +39,41 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
             }
         }
 
+        this.updateAvailableTimes();
+        this.redraw();
+
     },
 
-    draw : function () {
+    updateAvailableTimes : function () {
 
+        var newTimes = {};
+        for( var i = 0; i < this.visibleLayers.length; i++ ){
 
+            var layerTimes = this.timesForLayer(this.visibleLayers[i]);
+            for( var j = 0; j < layerTimes.length; j++ ){
+                var time = jQuery.trim(layerTimes[j]);
+
+                if( time in newTimes ){
+                    newTimes[time] = newTimes[time] + 1;
+                } else {
+                    newTimes[time] = 1;
+                }
+            }
+        }
+
+        this.availableTimes = newTimes;
+    },
+
+    /**
+     * Returned the array of times for a layer
+     */
+    timesForLayer : function (layer) {
+
+        var times = [];
+        if (layer.dimensions !== undefined && layer.dimensions.time !== undefined) {
+            times = layer.dimensions.time.values;
+        }
+        return times;
     },
 
     redraw : function () {
@@ -52,11 +82,14 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         container = jQuery(container);
         container.empty();
 
-        var layers = this.map.layers;
-        for( var i = 0; i < layers.length; i++){
-            var html = this._layerSelectorHtml(layers[i]);
-            container.append(html);
+        var times = this.sortTimes(this.availableTimes);
+        var html = '<select>';
+        for( var i = 0; i < times.length; i++ ){
+            html += '<option value="' + times[i] + '">' + times[i] + '</option>';
         }
+
+        html += '</select>';
+        container.append(html);
 
     },
 
@@ -92,13 +125,27 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         return html;
     },
 
+    /**
+     * Sort a dictionary/hash of times as stored in the availableTime
+     */
+    sortTimes : function ( availableTimes ) {
+
+        var times = [];
+        for( var time in availableTimes){
+            times.push(time);
+        }
+
+        times.sort();
+        return times;
+    },
+
     mergeTime : function (times1, times2) {
 
         // clone the first, just to make the function a bit cleaner
-        var merged = jQuery.extend({}, times1);
+        var merged = jQuery.extend([], times1);
 
         for( var i = 0; i < times2.length; i++){
-            if(jQuery.inArray(times2[i], merged)){
+            if(-1 == jQuery.inArray(times2[i], merged)){
                 merged.push(times2[i]);
             }
         }

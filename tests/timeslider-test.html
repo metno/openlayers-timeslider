@@ -2,9 +2,12 @@
                     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-<script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css"
+	type="text/css" media="screen" />
+<script type="text/javascript"
+	src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript"
+	src="http://code.jquery.com/qunit/git/qunit.js"></script>
 <script type="text/javascript" src="OpenLayers.js"></script>
 <script type="text/javascript" src="../TimeSlider.js"></script>
 
@@ -59,9 +62,26 @@
 
             layer1.setVisibility(false);
             deepEqual(timeSlider.visibleLayers, [ layer2 ], "Layer not visible registered");
+
+            // return to initial state
+            layer2.setVisibility(false);
         });
 
-        test("timeSlider mergeTime", function() {
+        test("TimeSlider sortTimes", function() {
+
+            var timeSlider = new OpenLayers.Control.TimeSlider();
+
+            deepEqual(timeSlider.sortTimes({}), [], "Sort empty availableTimes");
+
+            deepEqual(timeSlider.sortTimes( { "2009-11-06T12:00:00.000Z" : 1, "2009-11-07T12:00:00.000Z" : 2 }),
+                    ["2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z" ], "Sort non-empty available times 1");
+
+            deepEqual(timeSlider.sortTimes({ "2009-11-08T12:00:00.000Z" : 1, "2008-11-08T12:00:00.000Z" : 1, "2009-11-06T12:00:00.000Z" : 1, "2009-11-07T12:00:00.000Z" : 3 }),
+                                           [ "2008-11-08T12:00:00.000Z", "2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z", "2009-11-08T12:00:00.000Z" ],
+                                            "Sort non-empty available times 1");
+        });
+
+        test("TimeSlider mergeTime", function() {
 
             var timeSlider = new OpenLayers.Control.TimeSlider();
 
@@ -80,6 +100,35 @@
                     "2009-11-07T12:00:00.000Z", "2009-11-08T12:00:00.000Z" ]), [ "2009-11-06T12:00:00.000Z",
                     "2009-11-07T12:00:00.000Z", "2009-11-08T12:00:00.000Z" ], "Common elements");
         });
+
+
+        test("TimeSlider availableTimes", function () {
+
+            var timeSlider = new OpenLayers.Control.TimeSlider();
+            timeSlider.setMap(map);
+
+            var layers = map.layers;
+
+            deepEqual(timeSlider.availableTimes, {}, "Available times before layer selection" );
+
+            var layer1 = layers[1];
+            layer1.setVisibility(true);
+            deepEqual(timeSlider.availableTimes, { '2009-11-06T12:00:00.000Z' : 1,  '2009-11-07T12:00:00.000Z' : 1, '2009-11-08T12:00:00.000Z' : 1 }, "Available times for one layer" );
+
+            layer2 = layers[2];
+            layer2.setVisibility(true);
+            deepEqual(timeSlider.availableTimes, { '2009-11-05T12:00:00.000Z' : 1, '2009-11-06T12:00:00.000Z' : 2, '2009-11-07T12:00:00.000Z' : 2, '2009-11-08T12:00:00.000Z' : 1 }, "Available times for two overlapping layers" );
+
+            layer3 = layers[3];
+            layer3.setVisibility(true);
+            deepEqual(timeSlider.availableTimes, { '2009-11-05T12:00:00.000Z' : 1, '2009-11-06T12:00:00.000Z' : 2, '2009-11-07T12:00:00.000Z' : 2, '2009-11-08T12:00:00.000Z' : 2, '2009-11-09T12:00:00.000Z' : 1 }, "Available times for three overlapping layers" );
+
+            layer1.setVisibility(false);
+            deepEqual(timeSlider.availableTimes, { '2009-11-05T12:00:00.000Z' : 1, '2009-11-06T12:00:00.000Z' : 1, '2009-11-07T12:00:00.000Z' : 1, '2009-11-08T12:00:00.000Z' : 1, '2009-11-09T12:00:00.000Z' : 1 }, "Removed one layer but no times should be removed" );
+
+            layer2.setVisibility(false);
+            deepEqual(timeSlider.availableTimes, { '2009-11-08T12:00:00.000Z' : 1, '2009-11-09T12:00:00.000Z' : 1 }, "Removed additional layer. Times removed" );
+        } );
 
     }
 
