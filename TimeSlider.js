@@ -6,9 +6,20 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
 
     availableTimes : {},
 
+    // secondary attribute updated automatically from availableTimes
+    sortedTimes : [],
+
     visibleLayers : [],
 
     currentTime : null,
+
+    slider : null,
+
+    //ids for html elements used by the slider
+    sliderId : 'timeslider-slider',
+    nextButtonId : 'timeslider-next',
+    previousButtonId : 'timeslider-previous',
+    sliderCurrentId : 'timeslider-current',
 
     /**
      * Method: setMap
@@ -31,6 +42,7 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
 
     layerChange : function () {
 
+        console.log("layerChange()");
         this.visibleLayers = [];
         for( var i = 0; i < this.map.layers.length; i++ ){
             var layer = this.map.layers[i];
@@ -62,6 +74,7 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         }
 
         this.availableTimes = newTimes;
+        this.sortedTimes = this.sortTimes(this.availableTimes);
     },
 
     /**
@@ -82,14 +95,48 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         container = jQuery(container);
         container.empty();
 
-        var times = this.sortTimes(this.availableTimes);
-        var html = '<select>';
-        for( var i = 0; i < times.length; i++ ){
-            html += '<option value="' + times[i] + '">' + times[i] + '</option>';
+        if(this.sortedTimes.length > 0){
+            var html = this.timesliderHtml();
+            container.append(html);
+
+            var outerThis = this;
+            this.slider = jQuery('#' + this.sliderId).slider({
+                min: 0,
+                max : this.sortedTimes.length - 1,
+                change : function (event, slider) { outerThis.timesliderValueChange(event, slider); }
+            }
+            );
+
+            jQuery('#' + this.previousButtonId ).on('click', function () { outerThis.timesliderPrevious(); } );
+            jQuery('#' + this.nextButtonId).on('click', function () { outerThis.timesliderNext(); } );
+
         }
 
-        html += '</select>';
-        container.append(html);
+
+    },
+
+    timesliderNext : function () {
+        var val = this.slider.slider("value");
+        if( val < this.sortedTimes.length - 1 ){
+            this.slider.slider("value", val + 1);
+        } else {
+            this.slider.slider("value", 0);
+        }
+    },
+
+    timesliderPrevious : function () {
+        var val = this.slider.slider("value");
+        if( val > 0 ){
+            this.slider.slider("value", val - 1);
+        } else {
+            this.slider.slider("value", this.sortedTimes.length - 1);
+        }
+    },
+
+    timesliderValueChange : function (event, slider) {
+
+        var value = this.sortedTimes[slider.value];
+        jQuery('#' + this.sliderCurrentId).val(value);
 
     },
 
@@ -101,29 +148,17 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
 
         return this.div;
 
-
     },
 
-    _layerSelectorHtml : function (layer) {
-
-        var html = '<div>';
-        html += '<lable>' + layer.name + '</label>';
-        html += '<ul>';
-
-        if (layer.dimensions !== undefined && layer.dimensions.time !== undefined) {
-
-            var times = layer.dimensions.time.values;
-
-            for (var i = 0; i < times.length; i++) {
-                html += '<li>' + times[i] + '</li>';
-            }
-
-        }
-
-        html += '</ul></div>';
-
+    timesliderHtml : function () {
+        var html = '<div id="' + this.sliderId + '">';
+        html += '</div>';
+        html += '<button id="' + this.previousButtonId + '">Previous</button>';
+        html += '<input type="text" id="' + this.sliderCurrentId + '" />';
+        html += '<button id="' + this.nextButtonId + '">Next</button>';
         return html;
     },
+
 
     /**
      * Sort a dictionary/hash of times as stored in the availableTime
