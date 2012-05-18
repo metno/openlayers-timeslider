@@ -20,6 +20,7 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
     nextButtonId : 'timeslider-next',
     previousButtonId : 'timeslider-previous',
     sliderCurrentId : 'timeslider-current',
+    buttonDivId : 'timeslider-button-div',
 
     /**
      * Method: setMap
@@ -223,9 +224,11 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
     timesliderHtml : function () {
         var html = '<div id="' + this.sliderId + '">';
         html += '</div>';
+        html += '<div id="' + this.buttonDivId + '">';
         html += '<button id="' + this.previousButtonId + '">Previous</button>';
-        html += '<input type="text" id="' + this.sliderCurrentId + '" />';
+        html += '<input disabled="disabled" type="text" id="' + this.sliderCurrentId + '" />';
         html += '<button id="' + this.nextButtonId + '">Next</button>';
+        html += '</div>';
         return html;
     },
 
