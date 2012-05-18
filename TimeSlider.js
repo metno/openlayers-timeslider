@@ -150,6 +150,9 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         jQuery('#' + this.previousButtonId ).on('click', function () { outerThis.timesliderPrevious(); } );
         jQuery('#' + this.nextButtonId).on('click', function () { outerThis.timesliderNext(); } );
 
+        //we set the value to make sure that we fire the value changed event.
+        this.slider.slider("value", 0);
+
     },
 
     /**
