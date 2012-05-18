@@ -37,12 +37,17 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
             scope: this
         });
 
-        this.layerChange();
+        //this.layerChange();
     },
 
-    layerChange : function () {
+    layerChange : function (event) {
 
-        console.log("layerChange()");
+        // for change layer events we only care about changes to visibility
+        if( event.type == "changelayer" && event.property != "visibility" ){
+            return
+        }
+
+        console.log(event);
         this.visibleLayers = [];
         for( var i = 0; i < this.map.layers.length; i++ ){
             var layer = this.map.layers[i];
@@ -91,7 +96,13 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
 
     redraw : function () {
 
-        var container = this._outerDivContainer();
+        // clean up any existing slider
+        if( this.slider != null ){
+            this.slider.slider("destroy");
+            this.slider = null;
+        }
+
+        var container = this.outerDivContainer();
         container = jQuery(container);
         container.empty();
 
@@ -135,12 +146,21 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
 
     timesliderValueChange : function (event, slider) {
 
-        var value = this.sortedTimes[slider.value];
-        jQuery('#' + this.sliderCurrentId).val(value);
+        var currentTime = this.sortedTimes[slider.value];
+        jQuery('#' + this.sliderCurrentId).val(currentTime);
+        this.changeLayerTime(currentTime);
+    },
+
+    changeLayerTime : function (time) {
+
+        for( var i = 0; i < this.visibleLayers.length; i++ ){
+            var layer = this.visibleLayers[i];
+            layer.mergeNewParams( { time: time } );
+        }
 
     },
 
-    _outerDivContainer : function () {
+    outerDivContainer : function () {
 
         if( this.div == null ){
             this.div = document.createElement("div");
