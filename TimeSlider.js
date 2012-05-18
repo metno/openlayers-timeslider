@@ -194,19 +194,5 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         return times;
     },
 
-    mergeTime : function (times1, times2) {
-
-        // clone the first, just to make the function a bit cleaner
-        var merged = jQuery.extend([], times1);
-
-        for( var i = 0; i < times2.length; i++){
-            if(-1 == jQuery.inArray(times2[i], merged)){
-                merged.push(times2[i]);
-            }
-        }
-
-        return merged;
-    },
-
     CLASSNAME : "OpenLayers.Control.TimeSlider"
 });

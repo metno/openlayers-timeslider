@@ -83,27 +83,6 @@
                                             "Sort non-empty available times 1");
         });
 
-        test("TimeSlider mergeTime", function() {
-
-            var timeSlider = new OpenLayers.Control.TimeSlider();
-
-            deepEqual(timeSlider.mergeTime([], []), [], "Merging empty lists");
-
-            deepEqual(timeSlider.mergeTime([], [ "2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z" ]), [
-                    "2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z" ], "First list empty");
-
-            deepEqual(timeSlider.mergeTime([ "2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z" ], []), [
-                    "2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z" ], "Second list empty");
-
-            deepEqual(timeSlider.mergeTime([ "2009-11-06T12:00:00.000Z", ], [ "2009-11-07T12:00:00.000Z" ]), [
-                    "2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z" ], "No common elements");
-
-            deepEqual(timeSlider.mergeTime([ "2009-11-06T12:00:00.000Z", "2009-11-07T12:00:00.000Z" ], [
-                    "2009-11-07T12:00:00.000Z", "2009-11-08T12:00:00.000Z" ]), [ "2009-11-06T12:00:00.000Z",
-                    "2009-11-07T12:00:00.000Z", "2009-11-08T12:00:00.000Z" ], "Common elements");
-        });
-
-
         test("TimeSlider availableTimes", function () {
 
             var timeSlider = new OpenLayers.Control.TimeSlider();
