@@ -4,6 +4,7 @@
  */
 OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
 
+    // mapping of the times are available.
     availableTimes : {},
 
     // secondary attribute updated automatically from availableTimes
@@ -11,8 +12,7 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
 
     visibleLayers : [],
 
-    currentTime : null,
-
+    // jQuery UI slider object
     slider : null,
 
     //ids for html elements used by the slider
@@ -30,6 +30,7 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
     setMap: function(map) {
         OpenLayers.Control.prototype.setMap.apply(this, arguments);
 
+        // register callbacks for the events that we are interested in
         this.map.events.on({
             "addlayer": this.layerChange,
             "removelayer": this.layerChange,
@@ -37,9 +38,12 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
             scope: this
         });
 
-        //this.layerChange();
     },
 
+    /**
+     * Callback for when the layers change in some way. Either added, removed or altered.
+     * @param event
+     */
     layerChange : function (event) {
 
         // for change layer events we only care about changes to visibility
@@ -61,6 +65,9 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
 
     },
 
+    /**
+     * Update the availableTimes attribute based on the time values from visible layers.
+     */
     updateAvailableTimes : function () {
 
         var newTimes = {};
@@ -94,38 +101,60 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         return times;
     },
 
+    /**
+     * Redraw the UI
+     */
     redraw : function () {
 
+        this.resetSliderUI();
+
+        // we do not display the slider if the there are no layers with time.
+        if(this.sortedTimes.length > 0){
+            this.createSliderUI();
+        }
+
+    },
+
+    /**
+     * Clean up the current slider UI
+     */
+    resetSliderUI : function () {
         // clean up any existing slider
         if( this.slider != null ){
             this.slider.slider("destroy");
             this.slider = null;
         }
 
-        var container = this.outerDivContainer();
+        var container = this.getDivContainer();
         container = jQuery(container);
         container.empty();
+    },
 
-        if(this.sortedTimes.length > 0){
-            var html = this.timesliderHtml();
-            container.append(html);
+    /**
+     * Create the UI for the slider.
+     */
+    createSliderUI : function () {
+        var html = this.timesliderHtml();
+        var container = this.getDivContainer();
+        container = jQuery(container);
+        container.append(html);
 
-            var outerThis = this;
-            this.slider = jQuery('#' + this.sliderId).slider({
-                min: 0,
-                max : this.sortedTimes.length - 1,
-                change : function (event, slider) { outerThis.timesliderValueChange(event, slider); }
-            }
-            );
-
-            jQuery('#' + this.previousButtonId ).on('click', function () { outerThis.timesliderPrevious(); } );
-            jQuery('#' + this.nextButtonId).on('click', function () { outerThis.timesliderNext(); } );
-
+        var outerThis = this;
+        this.slider = jQuery('#' + this.sliderId).slider({
+            min: 0,
+            max : this.sortedTimes.length - 1,
+            change : function (event, slider) { outerThis.timesliderValueChange(event, slider); }
         }
+        );
 
+        jQuery('#' + this.previousButtonId ).on('click', function () { outerThis.timesliderPrevious(); } );
+        jQuery('#' + this.nextButtonId).on('click', function () { outerThis.timesliderNext(); } );
 
     },
 
+    /**
+     * Advance the slider to the next value. This method wraps around to the start.
+     */
     timesliderNext : function () {
         var val = this.slider.slider("value");
         if( val < this.sortedTimes.length - 1 ){
@@ -135,6 +164,9 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         }
     },
 
+    /**
+     * Move the slider to the previous value. This method wraps around to the end.
+     */
     timesliderPrevious : function () {
         var val = this.slider.slider("value");
         if( val > 0 ){
@@ -144,6 +176,11 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         }
     },
 
+    /**
+     * Callback for when the slider value is changed either by the user or programmatically.
+     * @param event The change event
+     * @param slider The jQuery UI slider
+     */
     timesliderValueChange : function (event, slider) {
 
         var currentTime = this.sortedTimes[slider.value];
@@ -151,6 +188,10 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         this.changeLayerTime(currentTime);
     },
 
+    /**
+     * Change the time for all visible layers.
+     * @param time The new time for all layers as a string.
+     */
     changeLayerTime : function (time) {
 
         for( var i = 0; i < this.visibleLayers.length; i++ ){
@@ -160,16 +201,22 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
 
     },
 
-    outerDivContainer : function () {
+    /**
+     * @returns The div container for the timeslider.
+     */
+    getDivContainer : function () {
 
         if( this.div == null ){
             this.div = document.createElement("div");
         }
-
         return this.div;
 
     },
 
+    /**
+     * Generates the HTML required by the time slider.
+     * @returns {String}
+     */
     timesliderHtml : function () {
         var html = '<div id="' + this.sliderId + '">';
         html += '</div>';
