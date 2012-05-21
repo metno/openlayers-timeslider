@@ -188,7 +188,7 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
     timesliderValueChange : function (event, slider) {
 
         var currentTime = this.sortedTimes[slider.value];
-        jQuery('#' + this.sliderCurrentId).val(currentTime);
+        jQuery('#' + this.sliderCurrentId).text(currentTime);
         this.changeLayerTime(currentTime);
     },
 
@@ -226,7 +226,7 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         html += '</div>';
         html += '<div id="' + this.buttonDivId + '">';
         html += '<button id="' + this.previousButtonId + '">Previous</button>';
-        html += '<input disabled="disabled" type="text" id="' + this.sliderCurrentId + '" />';
+        html += '<span id="' + this.sliderCurrentId + '"></span>';
         html += '<button id="' + this.nextButtonId + '">Next</button>';
         html += '</div>';
         return html;
