@@ -222,10 +222,10 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
     timesliderHtml : function () {
         var html = '<div id="' + this.sliderId + '">';
         html += '</div>';
-        html += '<div id="' + this.buttonDivId + '">';
-        html += '<button id="' + this.previousButtonId + '">Previous</button>';
-        html += '<span id="' + this.sliderCurrentId + '"></span>';
-        html += '<button id="' + this.nextButtonId + '">Next</button>';
+        html += '<div id="' + this.buttonDivId + '" class="timeslider-button-div">';
+        html += '<button id="' + this.previousButtonId + '" class="timeslider-previous">Previous</button>';
+        html += '<span id="' + this.sliderCurrentId + '" class="timeslider-current"></span>';
+        html += '<button id="' + this.nextButtonId + '" class="timeslider-next">Next</button>';
         html += '</div>';
         return html;
     },
