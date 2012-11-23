@@ -147,7 +147,7 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
             min: 0,
             range: "min",
             max : this.sortedTimes.length - 1,
-            change : function (event, slider) { outerThis.timesliderValueChange(event, slider); }
+            change : function (event, slider) { outerThis.timesliderValueChange(slider); }
         }
         );
 
@@ -185,10 +185,9 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
 
     /**
      * Callback for when the slider value is changed either by the user or programmatically.
-     * @param event The change event
      * @param slider The jQuery UI slider
      */
-    timesliderValueChange : function (event, slider) {
+    timesliderValueChange : function (slider) {
 
         var currentTime = this.sortedTimes[slider.value]; 
         var time = currentTime.slice(currentTime.lastIndexOf('T')+1);
