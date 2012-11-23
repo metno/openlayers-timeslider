@@ -11,6 +11,8 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
     sortedTimes : [],
 
     visibleLayers : [],
+    
+    startValueIndex: 0,
 
     // jQuery UI slider object
     slider : null,
@@ -20,7 +22,7 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
     nextButtonId : 'timeslider-next',
     previousButtonId : 'timeslider-previous',
     sliderCurrentId : 'timeslider-current',
-    buttonDivId : 'timeslider-button-div',
+    buttonDivId : 'timeslider-button-div',    
 
     /**
      * Method: setMap
@@ -52,7 +54,7 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
             return
         }
 
-        console.log(event);
+        //console.log(event);
         this.visibleLayers = [];
         for( var i = 0; i < this.map.layers.length; i++ ){
             var layer = this.map.layers[i];
@@ -143,6 +145,7 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         var outerThis = this;
         this.slider = jQuery('#' + this.sliderId).slider({
             min: 0,
+            range: "min",
             max : this.sortedTimes.length - 1,
             change : function (event, slider) { outerThis.timesliderValueChange(event, slider); }
         }
@@ -152,10 +155,10 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         jQuery('#' + this.nextButtonId).on('click', function () { outerThis.timesliderNext(); } );
 
         //we set the value to make sure that we fire the value changed event.
-        this.slider.slider("value", 0);
+        this.slider.slider("value", this.startValueIndex);
 
-    },
-
+    },   
+    
     /**
      * Advance the slider to the next value. This method wraps around to the start.
      */
@@ -187,8 +190,10 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
      */
     timesliderValueChange : function (event, slider) {
 
-        var currentTime = this.sortedTimes[slider.value];
-        jQuery('#' + this.sliderCurrentId).text(currentTime);
+        var currentTime = this.sortedTimes[slider.value]; 
+        var time = currentTime.slice(currentTime.lastIndexOf('T')+1);
+        jQuery("a.ui-slider-handle").text(time.length > 0 ? time : currentTime);        
+        jQuery('#' + this.sliderCurrentId).text(time.length > 0 ? currentTime.slice(0, currentTime.lastIndexOf('T')) : currentTime);        
         this.changeLayerTime(currentTime);
     },
 
@@ -224,10 +229,10 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
     timesliderHtml : function () {
         var html = '<div id="' + this.sliderId + '">';
         html += '</div>';
-        html += '<div id="' + this.buttonDivId + '">';
-        html += '<button id="' + this.previousButtonId + '">Previous</button>';
-        html += '<span id="' + this.sliderCurrentId + '"></span>';
-        html += '<button id="' + this.nextButtonId + '">Next</button>';
+        html += '<div id="' + this.buttonDivId + '" class="timeslider-button-div">';
+        html += '<button id="' + this.previousButtonId + '" class="timeslider-previous">Previous</button>';
+        html += '<span id="' + this.sliderCurrentId + '" class="timeslider-current"></span>';
+        html += '<button id="' + this.nextButtonId + '" class="timeslider-next">Next</button>';
         html += '</div>';
         return html;
     },
@@ -239,11 +244,18 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
     sortTimes : function ( availableTimes ) {
 
         var times = [];
-        for( var time in availableTimes){
+        for( var time in availableTimes){            
             times.push(time);
         }
 
         times.sort();
+        if (this.startTime) {
+            for (var index = 0; index<times.length; index++) {
+                if (times[index] == this.startTime) {                    
+                    this.startValueIndex = index;
+                }    
+            } 
+        }
         return times;
     },
 
