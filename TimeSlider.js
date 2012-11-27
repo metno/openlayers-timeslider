@@ -190,8 +190,8 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
     timesliderValueChange : function (slider) {
 
         var currentTime = this.sortedTimes[slider.value]; 
-        var time = currentTime.slice(currentTime.lastIndexOf('T')+1);
-        jQuery("a.ui-slider-handle").text(time.length > 0 ? time : currentTime);        
+        var time = currentTime.slice(currentTime.lastIndexOf('T')+1);        
+        jQuery("#"+this.sliderId + " a.ui-slider-handle").text(time.length > 0 ? time : currentTime);        
         jQuery('#' + this.sliderCurrentId).text(time.length > 0 ? currentTime.slice(0, currentTime.lastIndexOf('T')) : currentTime);        
         this.changeLayerTime(currentTime);
     },
