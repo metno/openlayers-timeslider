@@ -190,10 +190,18 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
     timesliderValueChange : function (slider) {
 
         var currentTime = this.sortedTimes[slider.value]; 
-        var time = currentTime.slice(currentTime.lastIndexOf('T')+1);        
+        var time = this.formatTime(currentTime);
         jQuery("#"+this.sliderId + " a.ui-slider-handle").text(time.length > 0 ? time : currentTime);        
-        jQuery('#' + this.sliderCurrentId).text(time.length > 0 ? currentTime.slice(0, currentTime.lastIndexOf('T')) : currentTime);        
+        //jQuery('#' + this.sliderCurrentId).text(time.length > 0 ? currentTime.slice(0, currentTime.lastIndexOf('T')) : currentTime);        
         this.changeLayerTime(currentTime);
+    },
+    
+    
+    formatTime: function(time) {
+        var dateString=time.slice(0,10);
+        var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+        var date=new Date(dateString);
+        return time.slice(time.lastIndexOf('T')+1,time.lastIndexOf('Z'))+",\xa0"+date.getDate()+"\xa0"+monthNames[date.getMonth()];
     },
 
     /**
@@ -229,9 +237,9 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         var html = '<div id="' + this.sliderId + '">';
         html += '</div>';
         html += '<div id="' + this.buttonDivId + '" class="timeslider-button-div">';
-        html += '<button id="' + this.previousButtonId + '" class="timeslider-previous">Previous</button>';
-        html += '<span id="' + this.sliderCurrentId + '" class="timeslider-current"></span>';
-        html += '<button id="' + this.nextButtonId + '" class="timeslider-next">Next</button>';
+        html += '<button id="' + this.previousButtonId + '" class="timeslider-previous"></button>';
+        //html += '<span id="' + this.sliderCurrentId + '" class="timeslider-current"></span>';
+        html += '<button id="' + this.nextButtonId + '" class="timeslider-next"></button>';
         html += '</div>';
         return html;
     },
@@ -260,3 +268,4 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
 
     CLASSNAME : "OpenLayers.Control.TimeSlider"
 });
+
