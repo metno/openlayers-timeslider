@@ -199,9 +199,9 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
     
     formatTime: function(time) {
         var dateString=time.slice(0,10);
-        var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+        //var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
         var date=new Date(dateString);
-        return time.slice(time.lastIndexOf('T')+1,time.lastIndexOf('Z'))+",\xa0"+date.getDate()+"\xa0"+monthNames[date.getMonth()];
+        return time.slice(time.lastIndexOf('T')+1,time.lastIndexOf('Z'))+",\xa0"+ $.datepicker.formatDate('dd M', date);
     },
 
     /**
@@ -268,4 +268,3 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
 
     CLASSNAME : "OpenLayers.Control.TimeSlider"
 });
-
