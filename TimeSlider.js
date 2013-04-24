@@ -24,6 +24,10 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
     sliderCurrentId : 'timeslider-current',
     buttonDivId : 'timeslider-button-div',    
 
+    // set to true if the slider should display like a scrollbar. I.e. the slider handle stops at the end
+    // of the slider
+    displayLikeScrollbar : false,
+        
     /**
      * Method: setMap
      *
@@ -150,6 +154,10 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
             change : function (event, slider) { outerThis.timesliderValueChange(slider); }
         }
         );
+        
+        if( this.displayLikeScrollbar ){
+            this.adjustToScrollbarView();
+        }
 
         jQuery('#' + this.previousButtonId ).on('click', function () { outerThis.timesliderPrevious(); } );
         jQuery('#' + this.nextButtonId).on('click', function () { outerThis.timesliderNext(); } );
@@ -158,6 +166,29 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         this.slider.slider("value", this.startValueIndex);
 
     },   
+    
+    /**
+     * Manipulate the slider so that the slider handle is displayed as in a scrollbar.
+     */
+    adjustToScrollbarView : function () {
+        
+        // calculated the desired width of container element for the handle
+        var sliderWidth = jQuery(this.slider).width();
+        var sliderHandle = jQuery('.ui-slider-handle', this.slider);
+        var handleWidth = sliderHandle.width();
+        var wrapperWidth = sliderWidth - handleWidth;
+        
+        // create the HTML for the wrapper element
+        var wrapperStyle = "position: relative; height: 100%; margin: 0 auto; width: " + wrapperWidth + "px;";
+        var wrapperElement = '<div class="ui-handle-wrapper-parent" style="' + wrapperStyle + '"></div>';
+        
+        // wrap the slider handle element in the new wrapper which has a width which is smaller than the slider
+        // it self. This prevents the overflow and gives the scrollbar effect.
+        this.slider.find( ".ui-slider-handle" ).wrap( wrapperElement );
+        
+        // adjust the margin of the handle as well.
+        sliderHandle.css('margin-left', -(handleWidth / 2));        
+    },
     
     /**
      * Advance the slider to the next value. This method wraps around to the start.
