@@ -17,3 +17,9 @@ To use, just include the TimeSlider.js file and add it as part of the map contro
     var map = new OpenLayers.Map({ div: "map",
                                    controls : [ new OpenLayers.Control.TimeSlider({ div : timeSliderDiv } ),],
                                 });
+
+
+## Options
+
+  * startTime: Set to the time you want the time slider to start on if it is not the first element in the time dimension.
+  * displayLikeScrollbar: Set to true if you want the slider to display like a scrollbar. I.e. the slider handle should not overflow the bounds of the slider.
