@@ -145,8 +145,9 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         var container = this.getDivContainer();
         container = jQuery(container);
         container.append(html);
-
+        
         var outerThis = this;
+
         this.slider = jQuery('#' + this.sliderId).slider({
             min: 0,
             range: "min",
@@ -158,7 +159,7 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         if( this.displayLikeScrollbar ){
             this.adjustToScrollbarView();
         }
-
+        jQuery('#' + this.sliderId ).on('mousemove', function () { outerThis.updateTimeOnSlider(); } );
         jQuery('#' + this.previousButtonId ).on('click', function () { outerThis.timesliderPrevious(); } );
         jQuery('#' + this.nextButtonId).on('click', function () { outerThis.timesliderNext(); } );
 
@@ -188,6 +189,13 @@ OpenLayers.Control.TimeSlider = OpenLayers.Class(OpenLayers.Control, {
         
         // adjust the margin of the handle as well.
         sliderHandle.css('margin-left', -(handleWidth / 2));        
+    },
+    
+    updateTimeOnSlider : function () {
+        var val = this.slider.slider("value");
+        var currentTime = this.sortedTimes[val]; 
+        var time = this.formatTime(currentTime);
+        jQuery("#"+this.sliderId + " a.ui-slider-handle").text(time.length > 0 ? time : currentTime); 
     },
     
     /**
